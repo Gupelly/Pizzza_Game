@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MainScript : MonoBehaviour
 {
     public TextMeshProUGUI TextMenu;
     private Transform[] Positions;
-    // Для проверки соблюдения иутрукций
+    // Р”Р»СЏ РїСЂРѕРІРµСЂРєРё СЃРѕР±Р»СЋРґРµРЅРёСЏ РёСѓС‚СЂСѓРєС†РёР№
     private List<Ingredient> CurrentIngredients;
-    // Чтобы было удобно удалять объекты (ингредиенты на пицце)
+    // Р§С‚РѕР±С‹ Р±С‹Р»Рѕ СѓРґРѕР±РЅРѕ СѓРґР°Р»СЏС‚СЊ РѕР±СЉРµРєС‚С‹ (РёРЅРіСЂРµРґРёРµРЅС‚С‹ РЅР° РїРёС†С†Рµ)
     private List<GameObject> CurrentGameObjects;
     private Ingredient CurrentIngredient;
     private Instruction CurrentInstruction;
@@ -17,15 +18,26 @@ public class MainScript : MonoBehaviour
     private int attempCount;
     public TextMeshProUGUI AttempCountText;
 
+    public Button AddButton;
+    public Button RemoveButton;
+    public Button FinishButton;
+
     public void ChangeInstruction()
     {
         CurrentInstruction = InstructionArray.Instructions[Random.Range(0, InstructionArray.Instructions.Length - 1)];
         TextMenu.text = CurrentInstruction.Task;
     }
 
+    public void BlockButton()
+    {
+        RemoveButton.interactable = false;
+        FinishButton.interactable = false;
+    }
+
     private void Start()
     {
-        ChangeInstruction();   
+        ChangeInstruction();
+        BlockButton();
     }
 
     private void Update()
@@ -38,28 +50,39 @@ public class MainScript : MonoBehaviour
     {
         CurrentIngredient = ingredient;
     }
-    // И такой метод для каждого ингредиента 
-    // Называь методы можно по названию ингредиента
+    // Р С‚Р°РєРѕР№ РјРµС‚РѕРґ РґР»СЏ РєР°Р¶РґРѕРіРѕ РёРЅРіСЂРµРґРёРµРЅС‚Р° 
+    // РќР°Р·С‹РІР°СЊ РјРµС‚РѕРґС‹ РјРѕР¶РЅРѕ РїРѕ РЅР°Р·РІР°РЅРёСЋ РёРЅРіСЂРµРґРёРµРЅС‚Р°
     public void ChooseIngredient0()
     {
         ChangeIngredient(IngredientArray.Ingredients[0]);
     }
-    // Прикрепляется к кнопке +
+    // РџСЂРёРєСЂРµРїР»СЏРµС‚СЃСЏ Рє РєРЅРѕРїРєРµ +
     public void AddIngredient()
     {
         CurrentIngredients.Add(CurrentIngredient);
         GameObject obj = Instantiate(CurrentIngredient.Object, Positions[CurrentGameObjects.Count]);
         CurrentGameObjects.Add(obj);
+
+        RemoveButton.interactable = true;
+        if (CurrentIngredients.Count > 9)
+            FinishButton.interactable = true;
+        if (CurrentIngredients.Count == 20)
+            AddButton.interactable = false;
     }
-    // Прикрепляется к кнопке -
+    // РџСЂРёРєСЂРµРїР»СЏРµС‚СЃСЏ Рє РєРЅРѕРїРєРµ -
     public void RemoveIngredient()
     {
         CurrentIngredients.RemoveAt(CurrentIngredients.Count - 1);
         var obj = CurrentGameObjects[CurrentGameObjects.Count - 1];
         CurrentGameObjects.Remove(obj); 
         Destroy(obj);
+
+        if (CurrentIngredients.Count < 10)
+            FinishButton.interactable = false;
+        if (CurrentIngredients.Count == 0)
+            RemoveButton.interactable = false;
     }
-    // Прикрепляется к кнопке сбросить пицццу
+    // РџСЂРёРєСЂРµРїР»СЏРµС‚СЃСЏ Рє РєРЅРѕРїРєРµ СЃР±СЂРѕСЃРёС‚СЊ РїРёС†С†С†Сѓ
     public void ResesPizza()
     {
         CurrentIngredients = new List<Ingredient>();
@@ -79,11 +102,12 @@ public class MainScript : MonoBehaviour
         if (attempCount > 0)
             AttempCountText.text = (attempCount - 1).ToString();
     }
-    // Прикрепляется к кнопке завершить
+    // РџСЂРёРєСЂРµРїР»СЏРµС‚СЃСЏ Рє РєРЅРѕРїРєРµ Р·Р°РІРµСЂС€РёС‚СЊ
     public void MakePizza() 
     { 
         ResesPizza();
         CheckPizza();
         ChangeInstruction();
+        BlockButton();
     }
 }
