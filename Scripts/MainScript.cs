@@ -12,8 +12,10 @@ public class MainScript : MonoBehaviour
     private List<GameObject> CurrentGameObjects;
     private Ingredient CurrentIngredient;
     private Instruction CurrentInstruction;
-    public TextMeshProUGUI Money;
-    public TextMeshProUGUI AttempCount;
+    private int money;
+    public TextMeshProUGUI MoneyText;
+    private int attempCount;
+    public TextMeshProUGUI AttempCountText;
 
     public void ChangeInstruction()
     {
@@ -24,6 +26,12 @@ public class MainScript : MonoBehaviour
     private void Start()
     {
         ChangeInstruction();   
+    }
+
+    private void Update()
+    {
+        if (GameTimer.CurrentSec == 0)
+            MakePizza();
     }
 
     public void ChangeIngredient(Ingredient ingredient)
@@ -62,13 +70,17 @@ public class MainScript : MonoBehaviour
 
     public void CheckPizza()
     {
-        if (CurrentInstruction.Check(CurrentIngredients) && int.Parse(AttempCount.text) > 0)
-            Money.text = (int.Parse(Money.text) + 100).ToString();
-        if (int.Parse(AttempCount.text) > 0)
-            AttempCount.text = (int.Parse(AttempCount.text) - 1).ToString();
+        if (CurrentInstruction.Check(CurrentIngredients) && attempCount > 0)
+            MoneyText.text = (money + 100).ToString();
+            if (GameTimer.CurrentSec > 20)
+                MoneyText.text = (money + 50).ToString();
+            else if (GameTimer.CurrentSec > 10)
+                MoneyText.text = (money + 30).ToString();
+        if (attempCount > 0)
+            AttempCountText.text = (attempCount - 1).ToString();
     }
     // Прикрепляется к кнопке завершить
-    public void MakePizza()
+    public void MakePizza() 
     { 
         ResesPizza();
         CheckPizza();
